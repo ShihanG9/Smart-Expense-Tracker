@@ -180,7 +180,7 @@ Special thanks to @hiifza for contributing to the development of this project.
 
 ## Developed By
 
-**Codec Technologies**  
+**Shihan**  
 For feedback, improvements, or feature requests, feel free to open an issue or contact the development team.
 ```
 
