@@ -1,7 +1,7 @@
 
 # Smart Expense Tracker
 
-**Smart Expense Tracker** is a project developed by Codec Technologies designed to assist students and working professionals in managing their income, expenses, and savings. It features theme customization, expense analysis, a budgeting assistant chatbot, and LocalStorage-based data storage, providing an efficient, user-friendly financial management experience.
+**Smart Expense Tracker** is a project designed to assist students and working professionals in managing their income, expenses, and savings. It features theme customization, expense analysis, a budgeting assistant chatbot, and LocalStorage-based data storage, providing an efficient, user-friendly financial management experience.
 
 The application is built using **HTML, CSS, and JavaScript**, featuring a modern user interface, offline-first functionality, and a comprehensive suite of features.
 
@@ -174,6 +174,9 @@ This project is licensed under the Codec Technologies
 
 
 ---
+## Special thanks
+
+Special thanks to @hiifza for contributing to the development of this project.
 
 ## Developed By
 
