@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Expense Tracker</title>
+    <link rel="stylesheet" href="et.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Raleway:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <!-- Floating Navigation Tab -->
+    <div class="nav-tab">
+        <button class="nav-btn" onclick="showScreen('dashboard')"><i class="fas fa-home"></i></button>
+        <button class="nav-btn" onclick="showScreen('add-expense')"><i class="fas fa-plus-circle"></i></button>
+        <button class="nav-btn" onclick="showScreen('view-expenses')"><i class="fas fa-list"></i></button>
+        <button class="nav-btn" onclick="showScreen('charts')"><i class="fas fa-chart-pie"></i></button>
+        <button class="nav-btn" onclick="showScreen('settings')"><i class="fas fa-cog"></i></button>
+    </div>
+
+    <!-- Screen 1: Welcome -->
+    <section class="screen" id="welcome">
+        <div class="welcome-container">
+            <div class="logo-animation">
+                <i class="fas fa-wallet"></i>
+                <h1>Smart Expense Tracker</h1>
+            </div>
+            <p class="tagline">Track. Analyze. Save.</p>
+            <button class="btn-primary" onclick="showScreen('profile-select')">Get Started</button>
+        </div>
+    </section>
+
+    <!-- Screen 2: Profile Select -->
+    <section class="screen" id="profile-select" style="display:none;">
+        <div class="profile-container">
+            <h2>Select Profile</h2>
+            <div class="profile-grid" id="profile-list">
+                <!-- Profiles will be added here dynamically -->
+            </div>
+            <button class="btn-secondary" onclick="addNewProfile()"><i class="fas fa-plus"></i> New Profile</button>
+        </div>
+    </section>
+
+    <!-- Screen 3: Dashboard -->
+    <section class="screen" id="dashboard" style="display:none;">
+        <div class="dashboard-container">
+            <h2>Dashboard</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>This Month</h3>
+                    <p class="amount" id="monthly-spending">₹0</p>
+                    <p class="change" id="monthly-change">0% vs last month</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Today</h3>
+                    <p class="amount" id="daily-spending">₹0</p>
+                    <p class="change" id="daily-change">0% vs yesterday</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Savings</h3>
+                    <p class="amount" id="savings-amount">₹0</p>
+                    <p class="change" id="savings-goal">0% of goal</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Top Category</h3>
+                    <p class="amount" id="top-category">-</p>
+                    <p class="change" id="top-category-amount">₹0</p>
+                </div>
+            </div>
+            
+            <div class="quick-actions">
+                <button class="btn-action" onclick="showScreen('add-expense')"><i class="fas fa-plus"></i> Add Expense</button>
+                <button class="btn-action" onclick="showScreen('view-expenses')"><i class="fas fa-list"></i> View All</button>
+                <button class="btn-action" onclick="showScreen('charts')"><i class="fas fa-chart-line"></i> Insights</button>
+            </div>
+            
+            <div class="recent-expenses">
+                <h3>Recent Expenses</h3>
+                <div class="expense-list" id="recent-expenses">
+                    <!-- Recent expenses will be added here -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Screen 4: Add Expense -->
+    <section class="screen" id="add-expense" style="display:none;">
+        <div class="add-expense-container">
+            <h2>Add Expense</h2>
+            
+            <div class="input-methods">
+                <button class="method-btn" onclick="startVoiceInput()"><i class="fas fa-microphone"></i> Voice</button>
+                <button class="method-btn" onclick="initOCR()"><i class="fas fa-camera"></i> Scan Receipt</button>
+            </div>
+            
+            <form id="expense-form">
+                <div class="form-group">
+                    <label for="expense-title">Title</label>
+                    <input type="text" id="expense-title" placeholder="What was it for?" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="expense-amount">Amount</label>
+                    <input type="number" id="expense-amount" placeholder="₹0.00" step="0.01" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="expense-date">Date</label>
+                    <input type="date" id="expense-date" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="expense-category">Category</label>
+                    <select id="expense-category" required>
+                        <option value="">Select category</option>
+                        <option value="Food">Food</option>
+                        <option value="Transport">Transport</option>
+                        <option value="Shopping">Shopping</option>
+                        <option value="Entertainment">Entertainment</option>
+                        <option value="Utilities">Utilities</option>
+                        <option value="Rent">Rent</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="expense-notes">Notes</label>
+                    <textarea id="expense-notes" placeholder="Any additional details"></textarea>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="showScreen('dashboard')">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Expense</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- Screen 5: View Expenses -->
+    <section class="screen" id="view-expenses" style="display:none;">
+        <div class="view-expenses-container">
+            <h2>Your Expenses</h2>
+            
+            <div class="filter-controls">
+                <div class="filter-group">
+                    <label for="filter-category">Category:</label>
+                    <select id="filter-category">
+                        <option value="">All Categories</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="filter-date">Date Range:</label>
+                    <select id="filter-date">
+                        <option value="all">All Time</option>
+                        <option value="today">Today</option>
+                        <option value="week">This Week</option>
+                        <option value="month" selected>This Month</option>
+                        <option value="year">This Year</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group" id="custom-date-range" style="display:none;">
+                    <label for="filter-start">From:</label>
+                    <input type="date" id="filter-start">
+                    <label for="filter-end">To:</label>
+                    <input type="date" id="filter-end">
+                </div>
+                
+                <button class="btn-secondary" onclick="applyFilters()">Apply</button>
+                <button class="btn-secondary" onclick="resetFilters()">Reset</button>
+            </div>
+            
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="setViewMode('list')"><i class="fas fa-list"></i> List</button>
+                <button class="toggle-btn" onclick="setViewMode('timeline')"><i class="fas fa-stream"></i> Timeline</button>
+            </div>
+            
+            <div class="expense-list-container">
+                <div class="expense-list list-view" id="expense-list">
+                    <!-- Expenses will be loaded here -->
+                </div>
+                
+                <div class="expense-list timeline-view" id="expense-timeline" style="display:none;">
+                    <!-- Timeline view will be loaded here -->
+                </div>
+            </div>
+            
+            <div class="total-display">
+                <h3>Total: <span id="filtered-total">₹0.00</span></h3>
+            </div>
+        </div>
+    </section>
+
+    <!-- Screen 6: Charts & Insights -->
+    <section class="screen" id="charts" style="display:none;">
+        <div class="charts-container">
+            <h2>Insights & Analytics</h2>
+            
+            <div class="chart-tabs">
+                <button class="chart-tab active" onclick="showChart('categories')">Categories</button>
+                <button class="chart-tab" onclick="showChart('trends')">Trends</button>
+                <button class="chart-tab" onclick="showChart('predictions')">Predictions</button>
+                <button class="chart-tab" onclick="showChart('heatmap')">Heatmap</button>
+            </div>
+            
+            <div class="chart-content">
+                <div class="chart-pane active" id="categories-chart">
+                    <h3>Spending by Category</h3>
+                    <div class="chart-container">
+                        <canvas id="pie-chart"></canvas>
+                    </div>
+                    <div class="chart-legend" id="pie-legend"></div>
+                </div>
+                
+                <div class="chart-pane" id="trends-chart" style="display:none;">
+                    <h3>Monthly Trends</h3>
+                    <div class="chart-container">
+                        <canvas id="line-chart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="chart-pane" id="predictions-chart" style="display:none;">
+                    <h3>Future Spending Prediction</h3>
+                    <div class="prediction-container">
+                        <div class="prediction-card">
+                            <p>Next month's predicted spending:</p>
+                            <h4 id="predicted-amount">₹0</h4>
+                            <p id="prediction-details">Based on your historical data</p>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="prediction-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chart-pane" id="heatmap-chart" style="display:none;">
+                    <h3>Spending Heatmap</h3>
+                    <div class="heatmap-container" id="calendar-heatmap">
+                        <!-- Heatmap will be generated here -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="insights-container">
+                <h3>Smart Insights</h3>
+                <div class="insight-card" id="ai-insights">
+                    <!-- AI insights will be displayed here -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Screen 7: Goals & Achievements -->
+    <section class="screen" id="goals" style="display:none;">
+        <div class="goals-container">
+            <h2>Goals & Achievements</h2>
+            
+            <div class="goals-tabs">
+                <button class="goals-tab active" onclick="showGoalsTab('savings')">Savings Goals</button>
+                <button class="goals-tab" onclick="showGoalsTab('achievements')">Achievements</button>
+            </div>
+            
+            <div class="goals-content">
+                <div class="goals-pane active" id="savings-goals">
+                    <div class="goal-form">
+                        <h3>Set a New Savings Goal</h3>
+                        <div class="form-group">
+                            <label for="goal-name">Goal Name</label>
+                            <input type="text" id="goal-name" placeholder="e.g., Vacation Fund">
+                        </div>
+                        <div class="form-group">
+                            <label for="goal-amount">Target Amount</label>
+                            <input type="number" id="goal-amount" placeholder="₹0.00" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label for="goal-date">Target Date</label>
+                            <input type="date" id="goal-date">
+                        </div>
+                        <button class="btn-primary" onclick="addNewGoal()">Add Goal</button>
+                    </div>
+                    
+                    <div class="goals-list" id="active-goals">
+                        <h3>Your Active Goals</h3>
+                        <!-- Goals will be added here -->
+                    </div>
+                </div>
+                
+                <div class="goals-pane" id="achievements-pane" style="display:none;">
+                    <div class="achievements-grid" id="achievements-list">
+                        <!-- Achievements will be added here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Screen 8: Export -->
+    <section class="screen" id="export" style="display:none;">
+        <div class="export-container">
+            <h2>Export Data</h2>
+            
+            <div class="export-options">
+                <div class="export-card" onclick="exportToPDF()">
+                    <i class="fas fa-file-pdf"></i>
+                    <h3>PDF Report</h3>
+                    <p>Generate a printable PDF with your expense summary</p>
+                </div>
+                
+                <div class="export-card" onclick="exportToExcel()">
+                    <i class="fas fa-file-excel"></i>
+                    <h3>Excel Spreadsheet</h3>
+                    <p>Export all data for further analysis</p>
+                </div>
+                
+                <div class="export-card" onclick="exportToJSON()">
+                    <i class="fas fa-file-code"></i>
+                    <h3>JSON Backup</h3>
+                    <p>Full data backup for restoring later</p>
+                </div>
+            </div>
+            
+            <div class="import-section">
+                <h3>Import Data</h3>
+                <input type="file" id="import-file" accept=".json,.xlsx,.csv" style="display:none;">
+                <button class="btn-secondary" onclick="document.getElementById('import-file').click()">Choose File</button>
+                <button class="btn-primary" onclick="importData()">Import</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Screen 9: Settings -->
+    <section class="screen" id="settings" style="display:none;">
+        <div class="settings-container">
+            <h2>Settings</h2>
+            
+            <div class="settings-group">
+                <h3>Appearance</h3>
+                <div class="setting-item">
+                    <label for="theme-select">Theme:</label>
+                    <select id="theme-select" onchange="changeTheme(this.value)">
+                        <option value="dark">Dark</option>
+                        <option value="light">Light</option>
+                        <option value="pastel">Pastel</option>
+                        <option value="teal">Teal</option>
+                        <option value="auto">Auto (Time-based)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="settings-group">
+                <h3>Security</h3>
+                <div class="setting-item">
+                    <label for="pin-toggle">Enable PIN Lock:</label>
+                    <label class="switch">
+                        <input type="checkbox" id="pin-toggle" onchange="togglePinLock(this.checked)">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                
+                <div class="setting-item" id="pin-settings" style="display:none;">
+                    <label for="set-pin">Set PIN:</label>
+                    <input type="password" id="set-pin" maxlength="4" placeholder="4-digit PIN">
+                    <button class="btn-small" onclick="savePin()">Save</button>
+                </div>
+            </div>
+            
+            <div class="settings-group">
+                <h3>Currency</h3>
+                <div class="setting-item">
+                    <label for="currency-select">Default Currency:</label>
+                    <select id="currency-select" onchange="changeCurrency(this.value)">
+                        <option value="₹">Indian Rupee (₹)</option>
+                        <option value="$">US Dollar ($)</option>
+                        <option value="€">Euro (€)</option>
+                        <option value="£">British Pound (£)</option>
+                        <option value="¥">Japanese Yen (¥)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="settings-group">
+                <h3>Data Management</h3>
+                <div class="setting-item">
+                    <button class="btn-warning" onclick="confirmReset()"><i class="fas fa-trash"></i> Reset All Data</button>
+                    <p class="warning-text">This will delete all expenses and settings</p>
+                </div>
+            </div>
+            
+            <div class="settings-footer">
+                <p>Smart Expense Tracker v1.0</p>
+                <p>All data stored locally on your device</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Confirmation Modal -->
+    <div class="modal" id="confirmation-modal" style="display:none;">
+        <div class="modal-content">
+            <h3 id="modal-title">Confirm Action</h3>
+            <p id="modal-message">Are you sure you want to perform this action?</p>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="hideModal()">Cancel</button>
+                <button class="btn-primary" id="modal-confirm-btn">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast-notification" style="display:none;">
+        <div class="toast-content">
+            <span id="toast-message">Notification message</span>
+            <button class="toast-close" onclick="hideToast()">&times;</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="et.js"></script>
+</body>
+</html>
